@@ -62,26 +62,22 @@ if st.button("Generar Preguntas"):
         try:
             questions, answers = claude_api.generar_preguntas(full_text, prompt_tema, prompt_tipo)
 
-            # Mostrar preguntas
+            # Mostrar preguntas y respuestas
             if questions:
                 st.header("Preguntas Generadas")
                 for i, question in enumerate(questions):
                     st.write(f"**Pregunta {i + 1}:** {question}")
-                    if tipo_preguntas == "Tipo Test":
+                    if tipo_preguntas == "Desarrollo":
+                        st.write(f"**Respuesta Correcta:** {answers[i]}")
+                    elif tipo_preguntas == "Tipo Test":
                         st.radio(f"Selecciona una respuesta para la pregunta {i + 1}:", ["A", "B", "C", "D"], key=f"test_{i}")
                     elif tipo_preguntas == "Verdadero/Falso":
                         st.radio(f"¿Es verdadero o falso?", ["Verdadero", "Falso"], key=f"vf_{i}")
-                    else:  # Desarrollo
-                        st.text_area(f"Escribe tu respuesta para la pregunta {i + 1}:", key=f"resp_{i}")
 
-                # Mostrar respuestas correctas si el usuario lo desea
-                if st.button("Mostrar Respuestas"):
-                    st.header("Respuestas Correctas")
-                    for i, answer in enumerate(answers):
-                        st.write(f"**Respuesta {i + 1}:** {answer}")
             else:
                 st.warning("No se pudieron generar preguntas. Verifica los documentos o el tema.")
         except Exception as e:
             st.error(f"Error al generar preguntas: {e}")
     else:
         st.warning("Primero sube documentos.")
+
