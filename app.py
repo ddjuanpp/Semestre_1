@@ -1,5 +1,6 @@
 # app.py
 
+import random
 import streamlit as st
 from documentos import DocumentUploader
 from busqueda import ClaudeAPI
@@ -37,7 +38,7 @@ if ambito_preguntas == "Temas concretos":
 # Opciones de tipo de preguntas
 tipo_preguntas = st.sidebar.selectbox(
     "Selecciona el tipo de preguntas:",
-    ["Desarrollo", "Tipo Test", "Verdadero/Falso"]
+    ["Desarrollo", "Verdadero/Falso", "Preguntas Cortas"]
 )
 
 # Botón para generar preguntas
@@ -55,24 +56,38 @@ if st.button("Generar Preguntas"):
             st.warning("Debes especificar un tema concreto.")
             st.stop()
 
-        prompt_tipo = tipo_preguntas.lower()
-
         # Generar preguntas y respuestas con Claude
-        st.info(f"Generando preguntas de tipo '{prompt_tipo}' sobre '{prompt_tema}'...")
+        st.info(f"Generando preguntas de tipo '{tipo_preguntas}' sobre '{prompt_tema}'...")
         try:
-            questions, answers = claude_api.generar_preguntas(full_text, prompt_tema, prompt_tipo)
+            questions, answers = claude_api.generar_preguntas(
+                full_text,
+                prompt_tema,
+                tipo_preguntas.lower()  # "desarrollo", "verdadero/falso" o "preguntas cortas"
+            )
 
             # Mostrar preguntas y respuestas
             if questions:
                 st.header("Preguntas Generadas")
                 for i, question in enumerate(questions):
                     st.write(f"**Pregunta {i + 1}:** {question}")
+
                     if tipo_preguntas == "Desarrollo":
-                        st.write(f"**Respuesta Correcta:** {answers[i]}")
-                    elif tipo_preguntas == "Tipo Test":
-                        st.radio(f"Selecciona una respuesta para la pregunta {i + 1}:", ["A", "B", "C", "D"], key=f"test_{i}")
+                        # Mostrar la respuesta correcta como texto más largo
+                        st.write(f"**Respuesta (desarrollo):** {answers[i]}")
+
                     elif tipo_preguntas == "Verdadero/Falso":
-                        st.radio(f"¿Es verdadero o falso?", ["Verdadero", "Falso"], key=f"vf_{i}")
+                        # Opciones verdadero/falso
+                        seleccion = st.radio(
+                            f"¿Es verdadero o falso?", 
+                            ["Verdadero", "Falso"],
+                            key=f"vf_{i}"
+                        )
+                        if seleccion:
+                            st.success(f"**Respuesta Correcta:** {answers[i]}")
+
+                    elif tipo_preguntas == "Preguntas Cortas":
+                        # Mostrar respuesta corta
+                        st.write(f"**Respuesta (corta):** {answers[i]}")
 
             else:
                 st.warning("No se pudieron generar preguntas. Verifica los documentos o el tema.")
@@ -80,4 +95,3 @@ if st.button("Generar Preguntas"):
             st.error(f"Error al generar preguntas: {e}")
     else:
         st.warning("Primero sube documentos.")
-

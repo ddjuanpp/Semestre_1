@@ -1,5 +1,7 @@
 # manager.py
 
+import random
+
 class ExamManager:
     def __init__(self, agent_rag):
         self.agent_rag = agent_rag
@@ -28,56 +30,75 @@ class ExamManager:
 
         return solution_text
 
-    def create_random_questions(self, full_text):
+    def create_development_questions(self, full_text, count=5):
         """
-        Genera preguntas aleatorias basadas en el texto completo.
+        Genera preguntas de desarrollo a partir de frases o temáticas detectadas en el texto.
         """
-        from random import sample
-
-        sentences = full_text.split('.')
-        sentences = [s.strip() for s in sentences if len(s.strip()) > 20]
-
-        for sentence in sample(sentences, min(5, len(sentences))):
-            words = sentence.split()
-            if len(words) > 4:
-                answer = words.pop(2)  # Elegir una palabra al azar como respuesta
-                question = sentence.replace(answer, "_____")
-                self.questions.append(question)
-                self.answers.append(answer)
-
+        sentences = [s.strip() for s in full_text.split('.') if len(s.strip()) > 30]
+        selected = random.sample(sentences, min(count, len(sentences)))
+        
+        for s in selected:
+            question = f"Explica en detalle: '{s}'"
+            answer = f"Respuesta elaborada sobre: {s}"
+            self.questions.append(question)
+            self.answers.append(answer)
         return self.questions, self.answers
 
-    def create_topic_specific_questions(self, full_text, topic):
+    def create_true_false_questions(self, full_text, count=5):
         """
-        Genera preguntas sobre un tema específico.
+        Genera preguntas de verdadero/falso, donde la 'respuesta' podría ser 'Verdadero' o 'Falso'.
         """
-        sentences = [s for s in full_text.split('.') if topic.lower() in s.lower()]
-        if not sentences:
-            return [], []
-
-        for sentence in sentences[:10]:  # Máximo 10 preguntas
-            words = sentence.split()
-            if len(words) > 4:
-                answer = words.pop(2)
-                question = sentence.replace(answer, "_____")
-                self.questions.append(question)
-                self.answers.append(answer)
-
+        sentences = [s.strip() for s in full_text.split('.') if len(s.strip()) > 30]
+        selected = random.sample(sentences, min(count, len(sentences)))
+        
+        for s in selected:
+            question = f"'{s}'. ¿Verdadero o Falso?"
+            # De manera simplificada, asignamos al azar la respuesta como 'Verdadero' o 'Falso'.
+            # En la práctica, deberías analizar la oración para determinar su veracidad.
+            answer = random.choice(["Verdadero", "Falso"])
+            self.questions.append(question)
+            self.answers.append(answer)
         return self.questions, self.answers
 
-    def combine_claude_and_random(self, description):
+    def create_short_questions(self, full_text, count=5):
         """
-        Combina preguntas de Claude con preguntas generadas aleatoriamente.
+        Genera preguntas cortas (con respuestas breves) a partir del texto.
         """
-        # Resolver ticket con Claude para obtener contenido relevante
+        sentences = [s.strip() for s in full_text.split('.') if len(s.strip()) > 30]
+        selected = random.sample(sentences, min(count, len(sentences)))
+        
+        for s in selected:
+            # Separamos por comas a modo de ejemplo; se puede refinar la lógica
+            parts = s.split(',')
+            if len(parts) >= 2:
+                question = f"¿{parts[0]}?"
+                answer = ','.join(parts[1:]).strip()
+            else:
+                question = f"Describe brevemente: '{s[:50]}'..."
+                answer = f"Respuesta corta sobre: {s[:50]}..."
+            
+            self.questions.append(question)
+            self.answers.append(answer)
+        return self.questions, self.answers
+
+    def combine_claude_and_local(self, description, question_type="desarrollo"):
+        """
+        Combina la extracción de texto desde Claude con la generación local de preguntas.
+        """
+        # 1. Resolvemos ticket con Claude para obtener el texto (full_text).
         full_text = self.resolver_ticket(description)
 
         if "Error" in full_text:
             return [], [], full_text  # Devuelve el error si algo falla
 
-        # Generar preguntas aleatorias y sobre el texto de Claude
-        random_questions, random_answers = self.create_random_questions(full_text)
-        self.questions = random_questions
-        self.answers = random_answers
-
-        return self.questions, self.answers, "Preguntas generadas exitosamente."
+        # 2. Dependiendo del tipo de pregunta, generamos de forma local:
+        if question_type.lower() == "desarrollo":
+            qs, ans = self.create_development_questions(full_text)
+        elif question_type.lower() in ["verdadero/falso", "verdadero falso"]:
+            qs, ans = self.create_true_false_questions(full_text)
+        elif question_type.lower() == "preguntas cortas":
+            qs, ans = self.create_short_questions(full_text)
+        else:
+            qs, ans = [], []
+        
+        return qs, ans, "Preguntas generadas exitosamente."
