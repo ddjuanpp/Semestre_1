@@ -48,7 +48,7 @@ streamlit run app.py
 Una vez iniciado en el navegador, introduce tus documentos en la pestaña correspondiente
 Espera a que aparezca "Documentos cargados exitosamente"
 
-Elige en el panel de la izquierda el ámbito de las preguntas, todo el temario o eligiendo tu de que tratarán
+Elige en el panel de la derecha el ámbito de las preguntas, todo el temario o eligiendo tu de que tratarán
 Elige también el tipo de pregunta que te gustaría ver.
 
 Una vez hayas seleccionado todo a tu gusto, selecciona "Generar Preguntas"
