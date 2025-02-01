@@ -1,6 +1,6 @@
 # Generador y Corrector de Exámenes con IA
 
-Esta herramienta permite **generar preguntas y corregir exámenes** utilizando **inteligencia artificial generativa (Claude en AWS Bedrock)**.  
+Esta herramienta permite **generar preguntas y corregir exámenes** utilizando **inteligencia artificial generativa**.  
 
 El sistema procesa **documentos en formato PDF, DOCX y PPTX**, extrae su contenido y genera preguntas de distintos tipos. También ofrece corrección automática y feedback interactivo.
 
@@ -12,8 +12,7 @@ El sistema procesa **documentos en formato PDF, DOCX y PPTX**, extrae su conteni
 Para ejecutar este programa, necesitas:
 
 - **Python 3.9 o superior** → [Descargar aquí](https://www.python.org/downloads/)  
-- **Acceso a Internet** (para conectarse a AWS Bedrock)  
-- **Cuenta de AWS con Bedrock habilitado** → [Crear cuenta](https://aws.amazon.com/)  
+- **Acceso a Internet** (para conectarse a IA)
 
 ### **1.2. Instalación de librerías necesarias**
 Para instalar todas las dependencias, ejecuta en la terminal:
